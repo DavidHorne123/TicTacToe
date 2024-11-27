@@ -33,6 +33,7 @@ public class BinarySearchTree {
         inorderTraversalRecursive(root);
     }
 
+
     private void inorderTraversalRecursive(BSTNode node) {
         if (node != null) {
             inorderTraversalRecursive(node.left);
