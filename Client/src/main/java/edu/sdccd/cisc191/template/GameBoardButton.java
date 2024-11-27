@@ -17,7 +17,6 @@ public class GameBoardButton extends Button {
         this.column = column;
 
         // Stores the game board reference to interact with the game logic
-
         this.gameBoard=gameBoard;
     }
     // Method to handle the logic after a button has been clicked
@@ -26,11 +25,14 @@ public class GameBoardButton extends Button {
         setText(gameBoard.getCurrentTurn());
 
         // Apply color styling based on the current player's symbol
-        if ("X".equals(getText())) {
+        if ("X".equals(gameBoard.getCurrentTurn())) {
             setStyle("-fx-text-fill: blue; -fx-font-size: 50;"); // Blue for X
-        } else if ("O".equals(getText())) {
+        } else if ("O".equals(gameBoard.getCurrentTurn())) {
             setStyle("-fx-text-fill: red; -fx-font-size: 50;"); // Red for O
+            System.out.println("Hello world");
+
         }
+        System.out.println(getText());
 
         // Disable the button after it's been clicked
         setDisable(true);

@@ -2,6 +2,8 @@ package edu.sdccd.cisc191.template;
 
 public class BinarySearchTree {
     class Node {
+
+
         int key; // Unique key for each move
         String player; // The player who made the move (X or O)
         Node left, right;
@@ -14,10 +16,12 @@ public class BinarySearchTree {
     }
 
     private Node root;
+
+    // X is true since X goes first in tictactoe
     private boolean isXTurn = true; // Tracks if it's X's turn (starts as X)
 
     // Insert a move into the tree
-    public void insert(int row, int col, String currentTurn) {
+    public void insertMove(int row, int col, String currentTurn) {
         int key = row * 3 + col; // Generate unique key
         String player = isXTurn ? "X" : "O"; // Determine the player
         root = insertRec(root, key, player);
@@ -44,6 +48,7 @@ public class BinarySearchTree {
     private void inOrderRec(Node root) {
         if (root != null) {
             inOrderRec(root.left);
+            // The player should either be X or O
             System.out.println("Key: " + root.key + ", Player: " + root.player);
             inOrderRec(root.right);
         }

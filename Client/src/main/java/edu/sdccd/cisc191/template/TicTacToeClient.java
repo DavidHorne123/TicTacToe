@@ -2,6 +2,7 @@ package edu.sdccd.cisc191.template;
 
 
 // import statements
+
 import edu.sdccd.cisc191.template.ServerRequest;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -18,7 +19,9 @@ import javafx.scene.control.Button;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 
 import static javafx.application.Application.launch;
@@ -27,7 +30,10 @@ import static javafx.application.Application.launch;
 // Added generics
 
 
-public class TicTacToeClient<T> extends Application{
+public class TicTacToeClient<T> extends Application {
+
+    private Date startTime;
+    private boolean isplayed = false;
 
     private BinarySearchTree actionLogTree = new BinarySearchTree(); // Create a BST to store moves
 
@@ -40,7 +46,6 @@ public class TicTacToeClient<T> extends Application{
     private final GameBoardLabel Xscore = new GameBoardLabel();
     private final GameBoardLabel Oscore = new GameBoardLabel();
     private final GameBoardLabel Turn = new GameBoardLabel();
-    private Socket socket;
 
     // Variables to store the number of wins for players X and O
     private int Xwins = 0; // Tracks the number of games X has won
@@ -53,12 +58,12 @@ public class TicTacToeClient<T> extends Application{
 
     /**
      * launches the javaFX applicatgion
+     *
      * @param args
      */
     public static void main(String[] args) {
         // launches the application
         launch(args);
-
     }
 
     /**
@@ -68,27 +73,27 @@ public class TicTacToeClient<T> extends Application{
         // update labels
         // changes the text depending how many fishes or guesses are remaining in
         // the game
-        Xscore.setText("X: " +  Xwins);
-        Oscore.setText("O: " +  Owins);
+        Xscore.setText("X: " + Xwins);
+        Oscore.setText("O: " + Owins);
         Turn.setText("Turn: " + getCurrentTurn());
 
     }
 
 
     /**
-     *
      * @param primayStage the primary stage for this application, onto which
-     * the application scene can be set. The primary stage will be embedded in
-     * the browser if the application was launched as an applet.
-     * Applications may create other stages, if needed, but they will not be
-     * primary stages and will not be embedded in the browser.
+     *                    the application scene can be set. The primary stage will be embedded in
+     *                    the browser if the application was launched as an applet.
+     *                    Applications may create other stages, if needed, but they will not be
+     *                    primary stages and will not be embedded in the browser.
      */
     public void start(Stage primayStage) {
 
+        InitialTime();
 
         // RESTART BUTTON
         Button restartButton = new Button("Restart");
-        restartButton.setOnAction(event ->{
+        restartButton.setOnAction(event -> {
             restart();
         });
         gameOver = false;
@@ -101,8 +106,8 @@ public class TicTacToeClient<T> extends Application{
         Button loadButton = new Button("Load Game");
         loadButton.setOnAction(event -> loadGame());
 
-        Button displayActionLog  = new Button("displayActionLog ");
-        displayActionLog .setOnAction(event -> displayActionLog ());
+        Button displayActionLog = new Button("displayActionLog ");
+        displayActionLog.setOnAction(event -> displayActionLog());
 
         Button displayMovesButton = new Button("Show Moves");
         displayMovesButton.setOnAction(event -> displayMoves());
@@ -116,14 +121,13 @@ public class TicTacToeClient<T> extends Application{
 
         updateHeader();
 
-
         // nested for loop to create a 3X3 grid of buttons
-        for(int row = 0; row < 3; row++){
-            for(int column = 0; column < 3; column++){
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
                 GameBoardButton button = new GameBoardButton(row, column, this);
 
                 // size of each button
-                button.setMinSize(160,150);
+                button.setMinSize(160, 150);
                 // set the font size of the text to 50
                 button.setStyle("-fx-font-size: 50;");
 
@@ -138,16 +142,16 @@ public class TicTacToeClient<T> extends Application{
                     // stores the clicked button in the corresponding position
                     // buttons[r][c] = button;
                     // Log the move into the BST
-                    actionLogTree.insert(r, c, getCurrentTurn()); // Use row and col as part of the key
+                    actionLogTree.insertMove(r, c, getCurrentTurn()); // Use row and col as part of the key
                 });
-                grid.add(button,column,row);
-                buttons[row][column]=button;
+                grid.add(button, column, row);
+                buttons[row][column] = button;
 
 
             }
         }
         // Creating a scene object that will display the game user;'s interface
-        Scene scene = new Scene(borderPane,660, 550);
+        Scene scene = new Scene(borderPane, 660, 550);
 
 
         // Sets the title of the game window
@@ -169,10 +173,34 @@ public class TicTacToeClient<T> extends Application{
         actionLogTree.inOrder();
     }
 
+    public void InitialTime() {
+
+        Thread timmerThread = new Thread(() -> {
+            while (true) {
+
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                    if (!isplayed) {
+                        continue;
+
+                    }
+                    if (startTime == null) {
+                        startTime = new Date();
+                    }
+                    System.out.println(new Date());
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        });
+
+        timmerThread.setDaemon(true);
+        timmerThread.start();
+    }
 
 
-    /** Method for saving the game to a file
-     *
+    /**
+     * Method for saving the game to a file
      */
     private void saveGame() {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("tic_tac_toe_save.dat"))) {
@@ -193,8 +221,8 @@ public class TicTacToeClient<T> extends Application{
         }
     }
 
-    /** Method for loading in the saved game
-     *
+    /**
+     * Method for loading in the saved game
      */
     private void loadGame() {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("tic_tac_toe_save.dat"))) {
@@ -221,9 +249,8 @@ public class TicTacToeClient<T> extends Application{
     }
 
 
-
-    /**  Method for restarting the game
-     *
+    /**
+     * Method for restarting the game
      */
     public void restart() {
         // iterating through each row and column
@@ -239,35 +266,31 @@ public class TicTacToeClient<T> extends Application{
     }
 
 
-    /**  Method for knowing whose turn it is
+    /**
+     * Method for knowing whose turn it is
      *
      * @return
      */
-    public String getCurrentTurn(){
+    public String getCurrentTurn() {
         String turn;
-        if(x){
-            turn="X";
-        }
-        else{
-            turn="0";
+        if (x) {
+            turn = "X";
+        } else {
+            turn = "O";
         }
         return turn;
     }
 
-    private void setStyle(String s) {
-    }
 
-
-    /** This method switches the current player's turn.
-     *  The variable 'x' represents whether it's X's turn.
-     *   If 'x' is true, it's X's turn, and if false, it's O's turn.
-     *   The method toggles the value of 'x', so the turn is switched
-     *   between X and O after each call.
+    /**
+     * This method switches the current player's turn.
+     * The variable 'x' represents whether it's X's turn.
+     * If 'x' is true, it's X's turn, and if false, it's O's turn.
+     * The method toggles the value of 'x', so the turn is switched
+     * between X and O after each call.
      */
-    public void SwitchTurn(){
-
-
-        x =! x; // toggle  the value of "x"
+    public void SwitchTurn() {
+        x = !x; // toggle  the value of "x"
     }
 
 
@@ -275,6 +298,11 @@ public class TicTacToeClient<T> extends Application{
      * Method for disabling the buttons on the game board
      */
     public void disableBoard() {
+        isplayed = false;
+        long totalTime = (new Date().getTime() - startTime.getTime()) / 1000;
+        System.out.println("totalTime:" + totalTime + "s");
+        startTime = null;
+
         // Iterate through each row of the 3x3 grid
         for (int row = 0; row < 3; row++) {
             // For each row, iterate through each column
@@ -282,14 +310,13 @@ public class TicTacToeClient<T> extends Application{
                 // Disable the button at the current row and column which makes it
                 // unclickable
                 buttons[row][col].setDisable(true);
+
             }
         }
     }
 
-    public void sendWinToServer(String playerWon)
-    {
-        try(Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT))
-        {
+    public void sendWinToServer(String playerWon) {
+        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
@@ -299,15 +326,13 @@ public class TicTacToeClient<T> extends Application{
 
             System.out.println(inputStream);
 
-        }catch (IOException e)
-        {
+        } catch (IOException e) {
             System.out.println("Error, could not connect to local server!");
             showServerErrorMessage();
         }
     }
 
-    private void showServerErrorMessage()
-    {
+    private void showServerErrorMessage() {
         Stage errorStage = new Stage();
         errorStage.setTitle("Server Error");
 
@@ -324,10 +349,8 @@ public class TicTacToeClient<T> extends Application{
         errorStage.show();
     }
 
-    public void displayActionLog ()
-    {
-        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT))
-        {
+    public void displayActionLog() {
+        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
@@ -346,8 +369,7 @@ public class TicTacToeClient<T> extends Application{
 
 
             StringBuilder sb = new StringBuilder();
-            for (String action : winLog)
-            {
+            for (String action : winLog) {
                 sb.append(action).append("\n");
             }
 
@@ -370,7 +392,6 @@ public class TicTacToeClient<T> extends Application{
 
             logStage.show();
 
-
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error getting win log from server: " + e.getMessage());
         }
@@ -385,99 +406,109 @@ public class TicTacToeClient<T> extends Application{
     /**
      * Method for checking who won
      */
-    public void Check(){
-        int count=0;
+    public void Check() {
+        int count = 0;
+        System.out.println("Game is running");
+        if (!isplayed) {
+            isplayed = true;
 
+        }
         //rows
         // iterates over each row
-        for(int row = 0; row < 3; row++){
+        for (int row = 0; row < 3; row++) {
             // If the first button of the row is empty, it skips the check for that row using
             // continue
-            if(buttons[row][0].getText().equals("")){
+            if (buttons[row][0].getText().equals("")) {
                 continue;
             }
             // Checks if all the buttons in the row have the same value
-            if(buttons[row][0].getText().equals(buttons[row][1].getText()) && buttons[row][0].getText().equals(buttons[row][2].getText())){
+            if (buttons[row][0].getText().equals(buttons[row][1].getText()) && buttons[row][0].getText().equals(buttons[row][2].getText())) {
                 // If they do, then the board is disabled
                 disableBoard();
                 // The current player's win count is incremented
-                if(getCurrentTurn().equals("X")){
+                if (getCurrentTurn().equals("X")) {
                     Xwins++;
                     sendWinToServer("X won");
-                }else{
+                } else {
                     Owins++;
                     sendWinToServer("O won");
                 }
                 // prints the result
-                System.out.println(getCurrentTurn()+ " wins");
+                System.out.println(getCurrentTurn() + " wins");
+                isplayed = false;
                 return;
+
             }
         }
 
         //columns
         // iterates over each column
-        for(int col = 0; col < 3; col++){
+        for (int col = 0; col < 3; col++) {
             // skips the check if the first button in the column is empty
-            if(buttons[0][col].getText().equals("")){
+            if (buttons[0][col].getText().equals("")) {
                 continue;
             }
             // Checks if all buttons in that column have the same text. If true, it declares a win
-            if(buttons[0][col].getText().equals(buttons[1][col].getText()) && buttons[0][col].getText().equals(buttons[2][col].getText())){
+            if (buttons[0][col].getText().equals(buttons[1][col].getText()) && buttons[0][col].getText().equals(buttons[2][col].getText())) {
                 // Disables the board
                 disableBoard();
-                if(getCurrentTurn().equals("X")){
+                if (getCurrentTurn().equals("X")) {
                     Xwins++;
                     sendWinToServer("X won");
-                }else{
+                } else {
                     Owins++;
                     sendWinToServer("O won");
                 }
                 // Prints the winner
-                System.out.println(getCurrentTurn()+ " wins");
+                System.out.println(getCurrentTurn() + " wins");
+                isplayed = false;
                 return;
+
             }
         }
 
         //diagonal 1 ( top left to bottom right)
-        if(buttons[0][0].getText().equals(buttons[1][1].getText()) && buttons[0][0].getText().equals(buttons[2][2].getText()) && !(buttons[0][0].getText().equals(""))){
+        if (buttons[0][0].getText().equals(buttons[1][1].getText()) && buttons[0][0].getText().equals(buttons[2][2].getText()) && !(buttons[0][0].getText().equals(""))) {
 
 
             // Disables the board
             disableBoard();
-            if(getCurrentTurn().equals("X")){
+            if (getCurrentTurn().equals("X")) {
                 // Updates the win count
                 Xwins++;
                 sendWinToServer("X won");
-            }else{
+            } else {
                 Owins++;
                 sendWinToServer("O won");
             }
             // Prints the winner
-            System.out.println(getCurrentTurn()+ " wins");
+            System.out.println(getCurrentTurn() + " wins");
+            isplayed = false;
             return;
         }
 
         //diagonal 2 ( top right to bottom left)
-        if(buttons[0][2].getText().equals(buttons[1][1].getText()) && buttons[0][2].getText().equals(buttons[2][0].getText()) && !(buttons[0][2].getText().equals(""))){
+        if (buttons[0][2].getText().equals(buttons[1][1].getText()) && buttons[0][2].getText().equals(buttons[2][0].getText()) && !(buttons[0][2].getText().equals(""))) {
             // Disables the board
             disableBoard();
-            if(getCurrentTurn().equals("X")){
+            if (getCurrentTurn().equals("X")) {
                 Xwins++;
                 sendWinToServer("X won");
-            }else{
+            } else {
                 Owins++;
                 sendWinToServer("O won");
             }
             // Prints the winner
-            System.out.println(getCurrentTurn()+ " wins");
+            System.out.println(getCurrentTurn() + " wins");
+            isplayed = false;
             return;
         }
 
         //tie
         // Loops through the entire gameboard
-        for(int i=0;i<3;i++){
-            for(int j=0;j<3;j++){
-                if(!(buttons[i][j].getText().equals(""))){
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (!(buttons[i][j].getText().equals(""))) {
                     count++;
 
 
@@ -485,8 +516,9 @@ public class TicTacToeClient<T> extends Application{
             }
         }
         // if all buttons are filled, it means no empty spots remain
-        if(count==9){
+        if (count == 9) {
             System.out.println("tie");
+            isplayed = false;
             disableBoard();
         }
     }
