@@ -14,7 +14,7 @@ public class GameBoardButton extends Button {
     public GameBoardButton(int row, int col, TicTacToeClient gameBoard) {
         // Assign the row and column variables to the respective fields
         this.row = row;
-        this.column = column;
+        this.column = col;
 
         // Stores the game board reference to interact with the game logic
         this.gameBoard=gameBoard;
@@ -29,7 +29,6 @@ public class GameBoardButton extends Button {
             setStyle("-fx-text-fill: blue; -fx-font-size: 50;"); // Blue for X
         } else if ("O".equals(gameBoard.getCurrentTurn())) {
             setStyle("-fx-text-fill: red; -fx-font-size: 50;"); // Red for O
-            System.out.println("Hello world");
 
         }
         System.out.println(getText());

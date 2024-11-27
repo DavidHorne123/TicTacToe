@@ -30,7 +30,7 @@ import static javafx.application.Application.launch;
 // Added generics
 
 
-public class TicTacToeClient<T> extends Application {
+public class TicTacToeClient extends Application {
 
     private Date startTime;
     private boolean isplayed = false;
@@ -168,11 +168,24 @@ public class TicTacToeClient<T> extends Application {
 
     } // end start();
 
+    /**
+     * System prints out all the moves that happened in the game
+     */
     public void displayMoves() {
         System.out.println("Moves in order:");
         actionLogTree.inOrder();
     }
 
+    /**
+     * Starts a separate thread that tracks and prints the current time every second.
+     *
+     * This method creates a new thread that runs in an infinite loop. The thread performs the following:
+     * - If the `isplayed` flag is false, it skips the current iteration and waits for one second before checking again.
+     * - If the `startTime` is not set (i.e., it's null), it assigns the current date and time to `startTime`.
+     * - It continuously prints the current date and time every second.
+     *
+     * The thread runs until the program is terminated. Interrupted exceptions are caught and ignored to allow the thread to continue running.
+     */
     public void InitialTime() {
 
         Thread timmerThread = new Thread(() -> {
@@ -354,25 +367,20 @@ public class TicTacToeClient<T> extends Application {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
-
             // Send a request to get the win log
             ServerRequest update = new ServerRequest("GET_WIN_LOG", null);
             outputStream.writeObject(update);
             outputStream.flush();
 
-
             // Receive the win log from the server
             LinkedList<String> winLog = (LinkedList<String>) inputStream.readObject();
 
-
             System.out.println("Action Log:");
-
 
             StringBuilder sb = new StringBuilder();
             for (String action : winLog) {
                 sb.append(action).append("\n");
             }
-
 
             // open a new window
             // Creating a scene object that will display the game user;'s interface
@@ -408,7 +416,6 @@ public class TicTacToeClient<T> extends Application {
      */
     public void Check() {
         int count = 0;
-        System.out.println("Game is running");
         if (!isplayed) {
             isplayed = true;
 
