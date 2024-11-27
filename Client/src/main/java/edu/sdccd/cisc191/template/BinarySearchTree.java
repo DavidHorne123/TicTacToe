@@ -1,43 +1,51 @@
 package edu.sdccd.cisc191.template;
 
 public class BinarySearchTree {
+    class Node {
+        int key; // Unique key for each move
+        String player; // The player who made the move (X or O)
+        Node left, right;
 
-    BSTNode root;
-
-    public BinarySearchTree() {
-        this.root = null;
-    }
-
-    // Insert a new node in the BST
-    public void insert(int row, int col, String player) {
-        root = insertRecursive(root, row, col, player);
-    }
-
-    private BSTNode insertRecursive(BSTNode node, int row, int col, String player) {
-        // Base case: if the current node is null, create a new one
-        if (node == null) {
-            return new BSTNode(row, col, player);
+        Node(int key, String player) {
+            this.key = key;
+            this.player = player;
+            left = right = null;
         }
+    }
 
-        // Compare the current node's position (row, col) with the new one
-        if (row < node.row || (row == node.row && col < node.col)) {
-            node.left = insertRecursive(node.left, row, col, player);
-        } else if (row > node.row || (row == node.row && col > node.col)) {
-            node.right = insertRecursive(node.right, row, col, player);
+    private Node root;
+    private boolean isXTurn = true; // Tracks if it's X's turn (starts as X)
+
+    // Insert a move into the tree
+    public void insert(int row, int col, String currentTurn) {
+        int key = row * 3 + col; // Generate unique key
+        String player = isXTurn ? "X" : "O"; // Determine the player
+        root = insertRec(root, key, player);
+        isXTurn = !isXTurn; // Toggle turn after insertion
+    }
+
+    private Node insertRec(Node root, int key, String player) {
+        if (root == null) {
+            return new Node(key, player);
         }
-        return node;
+        if (key < root.key) {
+            root.left = insertRec(root.left, key, player);
+        } else if (key > root.key) {
+            root.right = insertRec(root.right, key, player);
+        }
+        return root;
     }
 
-    // In-order traversal to print the BST
-    public void inorderTraversal() {
-        inorderTraversalRecursive(root);
+    // In-order traversal (to display moves in order)
+    public void inOrder() {
+        inOrderRec(root);
     }
 
-    private void inorderTraversalRecursive(BSTNode node) {
-        if (node != null) {
-            inorderTraversalRecursive(node.left);
-            System.out.println("Player " + node.player + " clicked at (" + node.row + ", " + node.col + ")");
-            inorderTraversalRecursive(node.right);
+    private void inOrderRec(Node root) {
+        if (root != null) {
+            inOrderRec(root.left);
+            System.out.println("Key: " + root.key + ", Player: " + root.player);
+            inOrderRec(root.right);
         }
     }
 }

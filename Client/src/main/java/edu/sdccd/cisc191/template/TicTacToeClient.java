@@ -104,10 +104,13 @@ public class TicTacToeClient<T> extends Application{
         Button displayActionLog  = new Button("displayActionLog ");
         displayActionLog .setOnAction(event -> displayActionLog ());
 
+        Button displayMovesButton = new Button("Show Moves");
+        displayMovesButton.setOnAction(event -> displayMoves());
+
         GridPane grid = new GridPane();
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(grid);
-        HBox hbox = new HBox(Xscore, Oscore, Turn, restartButton, saveButton, loadButton, displayActionLog);
+        HBox hbox = new HBox(Xscore, Oscore, Turn, restartButton, saveButton, loadButton, displayActionLog, displayMovesButton);
         borderPane.setTop(hbox);
         x = !x;
 
@@ -134,10 +137,8 @@ public class TicTacToeClient<T> extends Application{
                     TicTacToeClient.T[r][c] = button;
                     // stores the clicked button in the corresponding position
                     // buttons[r][c] = button;
-
-                    // Log the click in the binary search tree
-                    actionLogTree.insert(r, c, getCurrentTurn()); // Insert the move into the tree
-
+                    // Log the move into the BST
+                    actionLogTree.insert(r, c, getCurrentTurn()); // Use row and col as part of the key
                 });
                 grid.add(button,column,row);
                 buttons[row][column]=button;
@@ -146,7 +147,7 @@ public class TicTacToeClient<T> extends Application{
             }
         }
         // Creating a scene object that will display the game user;'s interface
-        Scene scene = new Scene(borderPane,520, 550);
+        Scene scene = new Scene(borderPane,660, 550);
 
 
         // Sets the title of the game window
@@ -163,6 +164,12 @@ public class TicTacToeClient<T> extends Application{
 
     } // end start();
 
+    public void displayMoves() {
+        System.out.println("Moves in order:");
+        actionLogTree.inOrder();
+    }
+
+
 
     /** Method for saving the game to a file
      *
@@ -177,10 +184,6 @@ public class TicTacToeClient<T> extends Application{
                 }
             }
             out.writeObject(boardState);
-
-
-
-
             out.writeBoolean(x);  // Save whose turn it is
             out.writeInt(Xwins);      // Save X's score
             out.writeInt(Owins);      // Save O's score
@@ -216,6 +219,7 @@ public class TicTacToeClient<T> extends Application{
 
 
     }
+
 
 
     /**  Method for restarting the game
@@ -319,6 +323,7 @@ public class TicTacToeClient<T> extends Application{
 
         errorStage.show();
     }
+
     public void displayActionLog ()
     {
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT))
@@ -344,8 +349,6 @@ public class TicTacToeClient<T> extends Application{
             for (String action : winLog)
             {
                 sb.append(action).append("\n");
-
-
             }
 
 
@@ -374,16 +377,9 @@ public class TicTacToeClient<T> extends Application{
 
 
         StringBuilder sb = new StringBuilder();
-
-
         // loop / recurse through the LinkedList and append the nodes to the string builder
-
-
         // set label text to the sb.toString()
     }
-
-
-
 
 
     /**
