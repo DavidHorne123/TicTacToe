@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 
 public class TicTacToeServer {
-    private static final int PORT = 1234;
+    private static final int PORT = 5678;
     private static boolean isServerRunning = true;
     public static LinkedList<String> globalLinkedList = new LinkedList<String>();
 

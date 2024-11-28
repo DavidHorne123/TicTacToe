@@ -38,7 +38,7 @@ public class TicTacToeClient extends Application {
     private BinarySearchTree actionLogTree = new BinarySearchTree(); // Create a BST to store moves
 
     private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 1234;
+    private static final int SERVER_PORT = 5678;
 
     // Making labels to display the score for players X and O
     // and the current player's turn
@@ -373,6 +373,7 @@ public class TicTacToeClient extends Application {
             outputStream.flush();
 
             // Receive the win log from the server
+            // Linked list
             LinkedList<String> winLog = (LinkedList<String>) inputStream.readObject();
 
             System.out.println("Action Log:");
