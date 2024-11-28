@@ -3,27 +3,19 @@ package edu.sdccd.cisc191.template;
 
 // import statements
 
-import edu.sdccd.cisc191.template.ServerRequest;
+
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-
-import java.io.*;
-import java.net.Socket;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 
+import static edu.sdccd.cisc191.template.ServerDetail.displayActionLog;
 import static javafx.application.Application.launch;
 
 // The TicTacToe class extends the JavaFX Application
@@ -32,13 +24,16 @@ import static javafx.application.Application.launch;
 
 public class TicTacToeClient extends Application {
 
+
+    private LoadAndSaveGame loadAndSaveGame;
+
     private Date startTime;
     private boolean isplayed = false;
 
     private BinarySearchTree actionLogTree = new BinarySearchTree(); // Create a BST to store moves
 
-    private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 5678;
+    //static final String SERVER_ADDRESS = "localhost";
+    //static final int SERVER_PORT = 5678;
 
     // Making labels to display the score for players X and O
     // and the current player's turn
@@ -48,12 +43,13 @@ public class TicTacToeClient extends Application {
     private final GameBoardLabel Turn = new GameBoardLabel();
 
     // Variables to store the number of wins for players X and O
-    private int Xwins = 0; // Tracks the number of games X has won
-    private int Owins = 0; // Tracks the number of games O has won
+    public int Xwins = 0; // Tracks the number of games X has won
+    public int Owins = 0; // Tracks the number of games O has won
 
     // 2D array of type Button where each element is a button object
+    // used generics
     public static Button[][] T = new Button[3][3]; //array representation of the game board
-    private boolean x = false; // tracks whether it's X's or O'x turn
+    public boolean x = false; // tracks whether it's X's or O'x turn
     public Button[][] buttons = new Button[3][3];
 
     /**
@@ -88,6 +84,7 @@ public class TicTacToeClient extends Application {
      *                    primary stages and will not be embedded in the browser.
      */
     public void start(Stage primayStage) {
+        loadAndSaveGame = new LoadAndSaveGame(this);
 
         InitialTime();
 
@@ -100,11 +97,11 @@ public class TicTacToeClient extends Application {
 
         // SAVE GAME BUTTON
         Button saveButton = new Button("Save Game");
-        saveButton.setOnAction(event -> saveGame());
+        saveButton.setOnAction(event -> loadAndSaveGame.saveGame());
 
         // LOAD GAME BUTTON
         Button loadButton = new Button("Load Game");
-        loadButton.setOnAction(event -> loadGame());
+        loadButton.setOnAction(event -> loadAndSaveGame.loadGame());
 
         Button displayActionLog = new Button("displayActionLog ");
         displayActionLog.setOnAction(event -> displayActionLog());
@@ -138,6 +135,7 @@ public class TicTacToeClient extends Application {
                 // Sets the action event for when the button is clicked
                 button.setOnAction(event -> {
                     button.handleButtonClick();
+                    // used generics
                     TicTacToeClient.T[r][c] = button;
                     // stores the clicked button in the corresponding position
                     // buttons[r][c] = button;
@@ -178,12 +176,12 @@ public class TicTacToeClient extends Application {
 
     /**
      * Starts a separate thread that tracks and prints the current time every second.
-     *
+     * <p>
      * This method creates a new thread that runs in an infinite loop. The thread performs the following:
      * - If the `isplayed` flag is false, it skips the current iteration and waits for one second before checking again.
      * - If the `startTime` is not set (i.e., it's null), it assigns the current date and time to `startTime`.
      * - It continuously prints the current date and time every second.
-     *
+     * <p>
      * The thread runs until the program is terminated. Interrupted exceptions are caught and ignored to allow the thread to continue running.
      */
     public void InitialTime() {
@@ -213,56 +211,6 @@ public class TicTacToeClient extends Application {
 
 
     /**
-     * Method for saving the game to a file
-     */
-    private void saveGame() {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("tic_tac_toe_save.dat"))) {
-            // Save the board state
-            String[][] boardState = new String[3][3];
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    boardState[i][j] = buttons[i][j].getText();
-                }
-            }
-            out.writeObject(boardState);
-            out.writeBoolean(x);  // Save whose turn it is
-            out.writeInt(Xwins);      // Save X's score
-            out.writeInt(Owins);      // Save O's score
-            System.out.println("Game saved successfully.");
-        } catch (IOException e) {
-            System.out.println("Error saving the game: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Method for loading in the saved game
-     */
-    private void loadGame() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("tic_tac_toe_save.dat"))) {
-            // Load the board state
-            String[][] boardState = (String[][]) in.readObject();
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    buttons[i][j].setText(boardState[i][j]);
-                }
-            }
-            x = in.readBoolean();  // Load whose turn it is
-            Xwins = in.readInt();      // Load X's score
-            Owins = in.readInt();      // Load O's score
-            // Calling the updateHeader method
-            updateHeader();
-            Check();
-
-            System.out.println("Game loaded successfully!.");
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error loading the game: " + e.getMessage());
-        }
-
-
-    }
-
-
-    /**
      * Method for restarting the game
      */
     public void restart() {
@@ -285,13 +233,7 @@ public class TicTacToeClient extends Application {
      * @return
      */
     public String getCurrentTurn() {
-        String turn;
-        if (x) {
-            turn = "X";
-        } else {
-            turn = "O";
-        }
-        return turn;
+        return x ? "X" : "O";
     }
 
 
@@ -328,90 +270,6 @@ public class TicTacToeClient extends Application {
         }
     }
 
-    public void sendWinToServer(String playerWon) {
-        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-
-            ServerRequest request = new ServerRequest("UPDATE_WIN", playerWon);
-            outputStream.writeObject(request);
-            outputStream.flush();
-
-            System.out.println(inputStream);
-
-        } catch (IOException e) {
-            System.out.println("Error, could not connect to local server!");
-            showServerErrorMessage();
-        }
-    }
-
-    private void showServerErrorMessage() {
-        Stage errorStage = new Stage();
-        errorStage.setTitle("Server Error");
-
-        Label label = new Label("Could not find server. Is the server currently running?");
-        label.setStyle("-fx-text-fill: red; -fx-font-size: 14px; -fx-font-weight: bold;");
-
-        VBox vbox = new VBox(label);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.setPadding(new Insets(10));
-
-        Scene scene = new Scene(vbox, 500, 100);
-        errorStage.setScene(scene);
-
-        errorStage.show();
-    }
-
-    public void displayActionLog() {
-        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-
-            // Send a request to get the win log
-            ServerRequest update = new ServerRequest("GET_WIN_LOG", null);
-            outputStream.writeObject(update);
-            outputStream.flush();
-
-            // Receive the win log from the server
-            // Linked list
-            LinkedList<String> winLog = (LinkedList<String>) inputStream.readObject();
-
-            System.out.println("Action Log:");
-
-            StringBuilder sb = new StringBuilder();
-            for (String action : winLog) {
-                sb.append(action).append("\n");
-            }
-
-            // open a new window
-            // Creating a scene object that will display the game user;'s interface
-            Stage logStage = new Stage();
-            logStage.setTitle("Action Log");
-
-
-            Label logLabel = new Label(sb.toString());
-            System.out.println(sb.toString());
-            ScrollPane scrollPane = new ScrollPane(logLabel);
-            scrollPane.setFitToWidth(true);
-
-
-            Scene scene = new Scene(scrollPane, 400, 300);
-            logStage.setScene(scene);
-
-
-            logStage.show();
-
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error getting win log from server: " + e.getMessage());
-        }
-
-
-        StringBuilder sb = new StringBuilder();
-        // loop / recurse through the LinkedList and append the nodes to the string builder
-        // set label text to the sb.toString()
-    }
-
-
     /**
      * Method for checking who won
      */
@@ -436,10 +294,11 @@ public class TicTacToeClient extends Application {
                 // The current player's win count is incremented
                 if (getCurrentTurn().equals("X")) {
                     Xwins++;
-                    sendWinToServer("X won");
+
+                    ServerDetail.sendWinToServer("X won");
                 } else {
                     Owins++;
-                    sendWinToServer("O won");
+                    ServerDetail.sendWinToServer("O won");
                 }
                 // prints the result
                 System.out.println(getCurrentTurn() + " wins");
@@ -462,10 +321,10 @@ public class TicTacToeClient extends Application {
                 disableBoard();
                 if (getCurrentTurn().equals("X")) {
                     Xwins++;
-                    sendWinToServer("X won");
+                    ServerDetail.sendWinToServer("X won");
                 } else {
                     Owins++;
-                    sendWinToServer("O won");
+                    ServerDetail.sendWinToServer("O won");
                 }
                 // Prints the winner
                 System.out.println(getCurrentTurn() + " wins");
@@ -478,16 +337,15 @@ public class TicTacToeClient extends Application {
         //diagonal 1 ( top left to bottom right)
         if (buttons[0][0].getText().equals(buttons[1][1].getText()) && buttons[0][0].getText().equals(buttons[2][2].getText()) && !(buttons[0][0].getText().equals(""))) {
 
-
             // Disables the board
             disableBoard();
             if (getCurrentTurn().equals("X")) {
                 // Updates the win count
                 Xwins++;
-                sendWinToServer("X won");
+                ServerDetail.sendWinToServer("X won");
             } else {
                 Owins++;
-                sendWinToServer("O won");
+                ServerDetail.sendWinToServer("O won");
             }
             // Prints the winner
             System.out.println(getCurrentTurn() + " wins");
@@ -501,10 +359,10 @@ public class TicTacToeClient extends Application {
             disableBoard();
             if (getCurrentTurn().equals("X")) {
                 Xwins++;
-                sendWinToServer("X won");
+                ServerDetail.sendWinToServer("X won");
             } else {
                 Owins++;
-                sendWinToServer("O won");
+                ServerDetail.sendWinToServer("O won");
             }
             // Prints the winner
             System.out.println(getCurrentTurn() + " wins");

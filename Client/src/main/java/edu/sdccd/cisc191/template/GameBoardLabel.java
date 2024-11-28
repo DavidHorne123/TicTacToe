@@ -10,7 +10,6 @@ public class GameBoardLabel extends Label {
 
     public static Insets LABEL_PADDING = new Insets(20);
 
-    // Generic data associated with this label
 
 
     public GameBoardLabel() {
