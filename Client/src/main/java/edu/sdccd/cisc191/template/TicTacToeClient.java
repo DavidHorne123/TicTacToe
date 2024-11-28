@@ -1,9 +1,6 @@
 package edu.sdccd.cisc191.template;
 
-
 // import statements
-
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -30,7 +27,7 @@ public class TicTacToeClient extends Application {
     private Date startTime;
     private boolean isplayed = false;
 
-    private BinarySearchTree actionLogTree = new BinarySearchTree(); // Create a BST to store moves
+    private ShowMoves actionLogTree = new ShowMoves(); // Create a BST to store moves
 
     //static final String SERVER_ADDRESS = "localhost";
     //static final int SERVER_PORT = 5678;
@@ -84,6 +81,7 @@ public class TicTacToeClient extends Application {
      *                    primary stages and will not be embedded in the browser.
      */
     public void start(Stage primayStage) {
+
         loadAndSaveGame = new LoadAndSaveGame(this);
 
         InitialTime();
@@ -106,6 +104,7 @@ public class TicTacToeClient extends Application {
         Button displayActionLog = new Button("displayActionLog ");
         displayActionLog.setOnAction(event -> displayActionLog());
 
+        // This button uses binary search trees
         Button displayMovesButton = new Button("Show Moves");
         displayMovesButton.setOnAction(event -> displayMoves());
 
@@ -136,6 +135,7 @@ public class TicTacToeClient extends Application {
                 button.setOnAction(event -> {
                     button.handleButtonClick();
                     // used generics
+                    // Assigning a button object to a specific position
                     TicTacToeClient.T[r][c] = button;
                     // stores the clicked button in the corresponding position
                     // buttons[r][c] = button;

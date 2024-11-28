@@ -1,7 +1,7 @@
 package edu.sdccd.cisc191.template;
 
-public class BinarySearchTree {
-
+public class ShowMoves {
+    // Uses a binary search tree in this class
     class Node {
 
 

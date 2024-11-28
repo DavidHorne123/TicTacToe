@@ -70,6 +70,8 @@ public class ServerDetail {
             System.out.println("Action Log:");
 
             // Stream api
+            // Converts the winlog into a stream
+            // Collectors.joining() method combines all elements into a single stream
             String sb = winLog.stream().collect(Collectors.joining("\n"));
 
 //            StringBuilder sb = new StringBuilder();
