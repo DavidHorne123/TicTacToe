@@ -13,7 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.LinkedList;
-
+import java.util.stream.Collectors;
 
 
 public class ServerDetail {
@@ -69,10 +69,13 @@ public class ServerDetail {
 
             System.out.println("Action Log:");
 
-            StringBuilder sb = new StringBuilder();
-            for (String action : winLog) {
-                sb.append(action).append("\n");
-            }
+            // Stream api
+            String sb = winLog.stream().collect(Collectors.joining("\n"));
+
+//            StringBuilder sb = new StringBuilder();
+//            for (String action : winLog) {
+//                sb.append(action).append("\n");
+//            }
 
             // open a new window
             // Creating a scene object that will display the game user;'s interface
@@ -80,8 +83,8 @@ public class ServerDetail {
             logStage.setTitle("Action Log");
 
 
-            Label logLabel = new Label(sb.toString());
-            System.out.println(sb.toString());
+            Label logLabel = new Label(sb);
+            System.out.println(sb);
             ScrollPane scrollPane = new ScrollPane(logLabel);
             scrollPane.setFitToWidth(true);
 
