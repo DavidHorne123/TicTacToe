@@ -12,14 +12,14 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 
+
 import static edu.sdccd.cisc191.template.ServerDetail.displayActionLog;
 import static javafx.application.Application.launch;
 
 // The TicTacToe class extends the JavaFX Application
 // Added generics
 
-
-public class TicTacToeClient extends Application {
+public class TicTacToeClient extends Application implements Game{
 
 
     private LoadAndSaveGame loadAndSaveGame;
@@ -56,12 +56,14 @@ public class TicTacToeClient extends Application {
      */
     public static void main(String[] args) {
         // launches the application
+
         launch(args);
     }
 
     /**
      * Method for updating the header
      */
+    @Override
     public void updateHeader() {
         // update labels
         // changes the text depending how many fishes or guesses are remaining in
@@ -80,6 +82,7 @@ public class TicTacToeClient extends Application {
      *                    Applications may create other stages, if needed, but they will not be
      *                    primary stages and will not be embedded in the browser.
      */
+
     public void start(Stage primayStage) {
 
         loadAndSaveGame = new LoadAndSaveGame(this);
@@ -169,6 +172,7 @@ public class TicTacToeClient extends Application {
     /**
      * System prints out all the moves that happened in the game
      */
+    @Override
     public void displayMoves() {
         System.out.println("Moves in order:");
         actionLogTree.inOrder();

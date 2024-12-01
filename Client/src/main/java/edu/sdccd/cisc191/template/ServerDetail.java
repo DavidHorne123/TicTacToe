@@ -20,6 +20,7 @@ public class ServerDetail {
     static final String SERVER_ADDRESS = "localhost";
     static final int SERVER_PORT = 5678;
 
+    // Client code that connects to the server
     public static void sendWinToServer(String playerWon) {
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
