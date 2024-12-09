@@ -16,7 +16,7 @@ public class ShowMoves {
         }
     }
 
-    private Node root;
+    private Node rootNode;
 
     // X is true since X goes first in tictactoe
     private boolean isXTurn = true; // Tracks if it's X's turn (starts as X)
@@ -25,25 +25,34 @@ public class ShowMoves {
     public void insertMove(int row, int col, String currentTurn) {
         int key = row * 3 + col; // Generate unique key
         String player = isXTurn ? "X" : "O"; // Determine the player
-        root = insertRec(root, key, player);
+        rootNode = insertRecursion(rootNode, key, player);
         isXTurn = !isXTurn; // Toggle turn after insertion
     }
 
-    private Node insertRec(Node root, int key, String player) {
+
+    /**
+     * Recursive method for inserting new nodes into the Binary Search Tree
+     * @param root
+     * @param key
+     * @param player
+     * @return
+     */
+    private Node insertRecursion(Node root, int key, String player) {
+        // Base case
         if (root == null) {
             return new Node(key, player);
         }
         if (key < root.key) {
-            root.left = insertRec(root.left, key, player);
+            root.left = insertRecursion(root.left, key, player);
         } else if (key > root.key) {
-            root.right = insertRec(root.right, key, player);
+            root.right = insertRecursion(root.right, key, player);
         }
         return root;
     }
 
     // In-order traversal (to display moves in order)
     public void inOrder() {
-        inOrderRec(root);
+        inOrderRec(rootNode);
     }
 
     private void inOrderRec(Node root) {

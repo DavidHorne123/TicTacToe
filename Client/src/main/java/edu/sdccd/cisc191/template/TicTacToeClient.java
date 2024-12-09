@@ -77,10 +77,7 @@ public class TicTacToeClient extends Application implements Game{
 
     /**
      * @param primayStage the primary stage for this application, onto which
-     *                    the application scene can be set. The primary stage will be embedded in
-     *                    the browser if the application was launched as an applet.
-     *                    Applications may create other stages, if needed, but they will not be
-     *                    primary stages and will not be embedded in the browser.
+     *  the application scene can be set.
      */
 
     public void start(Stage primayStage) {
@@ -180,13 +177,7 @@ public class TicTacToeClient extends Application implements Game{
 
     /**
      * Starts a separate thread that tracks and prints the current time every second.
-     * <p>
-     * This method creates a new thread that runs in an infinite loop. The thread performs the following:
-     * - If the `isplayed` flag is false, it skips the current iteration and waits for one second before checking again.
-     * - If the `startTime` is not set (i.e., it's null), it assigns the current date and time to `startTime`.
-     * - It continuously prints the current date and time every second.
-     * <p>
-     * The thread runs until the program is terminated. Interrupted exceptions are caught and ignored to allow the thread to continue running.
+     *
      */
     public void InitialTime() {
 
@@ -233,7 +224,8 @@ public class TicTacToeClient extends Application implements Game{
 
     /**
      * Method for knowing whose turn it is
-     *
+     * If X is true, method returns X
+     * If X is false, method returns O
      * @return
      */
     public String getCurrentTurn() {

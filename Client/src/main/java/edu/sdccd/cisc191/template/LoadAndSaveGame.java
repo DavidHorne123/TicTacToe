@@ -7,8 +7,12 @@ public class LoadAndSaveGame {
 
 
     public LoadAndSaveGame(TicTacToeClient client){
+
         this.client = client;
     }
+
+
+
     /**
      * Method for saving the game to a file
      */
