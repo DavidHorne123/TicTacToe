@@ -21,9 +21,11 @@ import static javafx.application.Application.launch;
 
 public class TicTacToeClient extends Application implements Game{
 
-
+    // Declares a private instance variable named loadAndSaveGame
     private LoadAndSaveGame loadAndSaveGame;
+    // Declares a private instance variable named startTime
     private Date startTime;
+    // This declares a private instance variable named isplayed and sets it to false
     private boolean isplayed = false;
 
     private ShowMoves actionLogTree = new ShowMoves(); // Create a BST to store moves
