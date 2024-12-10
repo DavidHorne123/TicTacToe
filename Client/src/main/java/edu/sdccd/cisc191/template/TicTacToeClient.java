@@ -23,7 +23,6 @@ public class TicTacToeClient extends Application implements Game{
 
 
     private LoadAndSaveGame loadAndSaveGame;
-
     private Date startTime;
     private boolean isplayed = false;
 
